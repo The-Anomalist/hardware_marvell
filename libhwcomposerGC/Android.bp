@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+
 # Copyright (C) 2008 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,41 +15,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 
-LOCAL_PATH:= $(call my-dir)
-# HAL module implemenation, not prelinked and stored in
-# hw/<COPYPIX_HARDWARE_MODULE_ID>.<ro.board.platform>.so
-include $(CLEAR_VARS)
+LOCAL_PATH = os.path.dirname(os.path.realpath(__file__))
 
 # By default, ENABLE_HWC_GC_PATH should be false, as for most platforms it should be disabled.
 # To Enable HWC GC path, should define ENABLE_HWC_GC_PATH as true in BoardConfig.mk
-ENABLE_HWC_GC_PATH   ?= false
+ENABLE_HWC_GC_PATH = os.getenv('ENABLE_HWC_GC_PATH', 'false')
 
-ifeq ($(ENABLE_HWC_GC_PATH), true)
-
+if ENABLE_HWC_GC_PATH == 'true':
+    include_clear_vars1 = """
 include $(CLEAR_VARS)
 LOCAL_PREBUILT_LIBS := libHWComposerGC.a
 LOCAL_MODULE_TAGS := optional
 include $(BUILD_MULTI_PREBUILT)
-
+"""
+    
+    include_clear_vars2 = """
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES :=
 
-LOCAL_C_INCLUDES := \
-    hardware/libhardware/include \
+LOCAL_C_INCLUDES := \\
+    hardware/libhardware/include \\
 
 LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)
 
-LOCAL_SHARED_LIBRARIES := \
-        libhardware \
-        liblog \
-        libutils \
-        libcutils \
-        libEGL \
-        libbinder \
-        libGAL \
-        libsync \
+LOCAL_SHARED_LIBRARIES := \\
+        libhardware \\
+        liblog \\
+        libutils \\
+        libcutils \\
+        libEGL \\
+        libbinder \\
+        libGAL \\
+        libsync \\
 
 LOCAL_MODULE := libHWComposerGC
 
@@ -55,5 +58,8 @@ LOCAL_CFLAGS := -DENABLE_HWC_GC_PATH -DINTEGRATED_WITH_MARVELL -g
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)
+"""
+    
+    android_mk_code = include_clear_vars1 + include_clear_vars2
 
-endif
+    print(android_mk_code)
